@@ -36,7 +36,6 @@ namespace Freeserf
     using Serfs = Collection<Serf>;
     using Players = Collection<Player>;
     using Values = Dictionary<uint, uint>;
-    using Dirs = Stack<Direction>;
 
     public class Game : Map.Handler
     {
@@ -71,8 +70,8 @@ namespace Freeserf
         int[] playerHistoryIndex = new int[4];
         int[] playerHistoryCounter = new int[3];
         int resourceHistoryIndex;
-        int gameType;
-        int playerScoreLeader;
+        int gameType; // TODO: this is never used beside in savegames
+        int playerScoreLeader; // TODO: this is never used beside in savegames
 
         int knightMoraleCounter;
         int inventoryScheduleCounter;
