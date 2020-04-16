@@ -130,8 +130,8 @@ namespace Freeserf.UI
         internal Viewer Viewer { get; set; }
         public string ServerGameName => initBox?.ServerGameName ?? "";
         public GameInfo ServerGameInfo => initBox?.ServerGameInfo;
-        public Network.ILocalServer Server => initBox?.Server;
-        public Network.ILocalClient Client => initBox?.Client;
+        public Network.ILocalServer Server { get; internal set; } = null;
+        public Network.ILocalClient Client { get; internal set; } = null;
 
         public Interface(IRenderView renderView, Audio.IAudioInterface audioInterface, Viewer viewer)
             : base(renderView, audioInterface)
@@ -315,15 +315,9 @@ namespace Freeserf.UI
             config = Misc.BitInvert(config, i);
         }
 
-        public MapPos GetMapCursorPosition()
-        {
-            return mapCursorPosition;
-        }
+        public MapPos MapCursorPosition => mapCursorPosition;
 
-        public CursorType GetMapCursorType()
-        {
-            return mapCursorType;
-        }
+        public CursorType MapCursorType => mapCursorType;
 
         public uint GetMapCursorSprite(int i)
         {
@@ -712,6 +706,9 @@ namespace Freeserf.UI
                 }
                 else
                 {
+                    if (Viewer.ViewerType == Viewer.Type.Client)
+                        Client.SendUserAction(Network.UserActionData.CreatePlaceRoadUserAction(Network.Global.SpontaneousMessage, Game, buildingRoad.Copy(), false));
+
                     BuildRoadEnd();
                     UpdateMapCursorPosition(destination);
                     return 1;
@@ -796,6 +793,9 @@ namespace Freeserf.UI
 
             if (mapCursorType == CursorType.RemovableFlag)
             {
+                if (Viewer.ViewerType == Viewer.Type.Client)
+                    Client.SendUserAction(Network.UserActionData.CreateDemolishFlagUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
+
                 PlaySound(Freeserf.Audio.Audio.TypeSfx.Click);
                 Game.DemolishFlag(mapCursorPosition, Player);
                 DetermineMapCursorType();
@@ -811,6 +811,9 @@ namespace Freeserf.UI
                 {
                     // TODO 
                 }
+
+                if (Viewer.ViewerType == Viewer.Type.Client)
+                    Client.SendUserAction(Network.UserActionData.CreateDemolishBuildingUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
 
                 PlaySound(Freeserf.Audio.Audio.TypeSfx.Ahhh);
                 Game.DemolishBuilding(mapCursorPosition, Player);
@@ -837,6 +840,9 @@ namespace Freeserf.UI
             }
 
             UpdateMapCursorPosition(mapCursorPosition);
+
+            if (Viewer.ViewerType == Viewer.Type.Client)
+                Client.SendUserAction(Network.UserActionData.CreatePlaceFlagUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
         }
 
         // Build a new building. 
@@ -850,6 +856,9 @@ namespace Freeserf.UI
                 PlaySound(Freeserf.Audio.Audio.TypeSfx.NotAccepted);
                 return;
             }
+
+            if (Viewer.ViewerType == Viewer.Type.Client)
+                Client.SendUserAction(Network.UserActionData.CreatePlaceBuildingUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
 
             PlaySound(Freeserf.Audio.Audio.TypeSfx.Accepted);
             ClosePopup();
@@ -871,6 +880,9 @@ namespace Freeserf.UI
                 return;
             }
 
+            if (Viewer.ViewerType == Viewer.Type.Client)
+                Client.SendUserAction(Network.UserActionData.CreatePlaceBuildingUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
+
             PlaySound(Freeserf.Audio.Audio.TypeSfx.Accepted);
             UpdateMapCursorPosition(mapCursorPosition);
         }
@@ -882,11 +894,17 @@ namespace Freeserf.UI
 
             if (!Game.BuildRoad(buildingRoad.Copy(), Player))
             {
+                if (Viewer.ViewerType == Viewer.Type.Client)
+                    Client.SendUserAction(Network.UserActionData.CreateDemolishFlagUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
+
                 PlaySound(Freeserf.Audio.Audio.TypeSfx.NotAccepted);
                 Game.DemolishFlag(mapCursorPosition, Player);
             }
             else
             {
+                if (Viewer.ViewerType == Viewer.Type.Client)
+                    Client.SendUserAction(Network.UserActionData.CreatePlaceRoadUserAction(Network.Global.SpontaneousMessage, Game, buildingRoad.Copy(), false));
+
                 PlaySound(Freeserf.Audio.Audio.TypeSfx.Accepted);
                 BuildRoadEnd();
             }
@@ -1476,12 +1494,10 @@ namespace Freeserf.UI
 
     internal class ServerInterface : Interface
     {
-        readonly Network.ILocalServer server = null;
-
         public ServerInterface(IRenderView renderView, Audio.IAudioInterface audioInterface, Viewer viewer, Network.ILocalServer server)
             : base(renderView, audioInterface, viewer)
         {
-            this.server = server;
+            Server = server;
         }
 
         public override void Update()
@@ -1507,23 +1523,13 @@ namespace Freeserf.UI
 
     internal class RemoteInterface : Interface
     {
-        public RemoteInterface(IRenderView renderView, Audio.IAudioInterface audioInterface, Viewer viewer)
+        public RemoteInterface(IRenderView renderView, Audio.IAudioInterface audioInterface, Viewer viewer, Network.ILocalClient client)
             : base(renderView, audioInterface, viewer)
         {
-
-        }
-
-        public void GetMapUpdate()
-        {
-
+            Client = client;
         }
 
         public void GetGameUpdate()
-        {
-
-        }
-
-        public void GetPlayerUpdate(uint playerIndex)
         {
 
         }

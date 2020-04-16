@@ -2,7 +2,7 @@
  * Viewport.cs - Viewport GUI component
  *
  * Copyright (C) 2013       Jon Lund Steffensen <jonlst@gmail.com>
- * Copyright (C) 2018-2019  Robert Schneckenhaus <robert.schneckenhaus@web.de>
+ * Copyright (C) 2018-2020  Robert Schneckenhaus <robert.schneckenhaus@web.de>
  *
  * This file is part of freeserf.net. freeserf.net is based on freeserf.
  *
@@ -153,7 +153,7 @@ namespace Freeserf.UI
             else
                 ClearMapCursorPossibleBuild();
 
-            var position = interf.GetMapCursorPosition();
+            var position = interf.MapCursorPosition;
 
             DrawMapCursorSprite(position, 0, interf.GetMapCursorSprite(0));
 
@@ -312,8 +312,8 @@ namespace Freeserf.UI
 
             if (interf.IsBuildingRoad)
             {
-                int distanceX = map.DistanceX(interf.GetMapCursorPosition(), mapPosition) + 1;
-                int distanceY = map.DistanceY(interf.GetMapCursorPosition(), mapPosition) + 1;
+                int distanceX = map.DistanceX(interf.MapCursorPosition, mapPosition) + 1;
+                int distanceY = map.DistanceY(interf.MapCursorPosition, mapPosition) + 1;
                 Direction direction;
 
                 if (distanceX == 0)
@@ -434,7 +434,7 @@ namespace Freeserf.UI
 
             if (interf.IsBuildingRoad)
             {
-                if (mapPosition != interf.GetMapCursorPosition())
+                if (mapPosition != interf.MapCursorPosition)
                 {
                     var roadEndPosition = interf.GetBuildingRoad().EndPosition;
                     var road = Pathfinder.FindShortestPath(map, roadEndPosition, mapPosition, interf.GetBuildingRoad(), int.MaxValue, true);
@@ -453,8 +453,11 @@ namespace Freeserf.UI
                         }
                         else
                         {
-                            if (interf.Game.BuildFlag(interf.GetMapCursorPosition(), player))
+                            if (interf.Game.BuildFlag(interf.MapCursorPosition, player))
                             {
+                                if (interf.Viewer.ViewerType == Viewer.Type.Client)
+                                    interf.Client.SendUserAction(Network.UserActionData.CreatePlaceFlagUserAction(Network.Global.SpontaneousMessage, interf.Game, interf.MapCursorPosition));
+
                                 interf.BuildRoad();
                                 PlaySound(Freeserf.Audio.Audio.TypeSfx.Accepted);
                             }
@@ -471,10 +474,13 @@ namespace Freeserf.UI
                 }
                 else
                 {
-                    bool result = interf.Game.BuildFlag(interf.GetMapCursorPosition(), player);
+                    bool result = interf.Game.BuildFlag(interf.MapCursorPosition, player);
 
                     if (result)
                     {
+                        if (interf.Viewer.ViewerType == Viewer.Type.Client)
+                            interf.Client.SendUserAction(Network.UserActionData.CreatePlaceFlagUserAction(Network.Global.SpontaneousMessage, interf.Game, interf.MapCursorPosition));
+
                         interf.BuildRoad();
                     }
                     else
