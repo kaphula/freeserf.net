@@ -403,7 +403,7 @@ namespace Freeserf.UI
         }
     }
 
-    public class Gui
+    public class Gui : Network.INetworkDataHandler
     {
         readonly Render.IRenderView renderView = null;
         Viewer viewer = null;
@@ -428,6 +428,35 @@ namespace Freeserf.UI
             renderView.Drag += RenderView_Drag;
             renderView.KeyPress += RenderView_KeyPress;
             renderView.SystemKeyPress += RenderView_SystemKeyPress;
+        }
+
+        public void UpdateNetworkEvents(Network.INetworkDataReceiver networkDataReceiver)
+        {
+            if (viewer != null)
+            {
+                if (viewer.MainInterface?.Server != null || viewer.ViewerType == Viewer.Type.Server)
+                {
+                    var server = viewer.MainInterface?.Server;
+
+                    if (server == null)
+                        throw new ExceptionFreeserf(ErrorSystemType.Network, "Server viewer without server interface.");
+
+                    server.UpdateNetworkEvents(networkDataReceiver);
+                }
+                else if (viewer.MainInterface?.Client != null ||
+                         viewer.ViewerType == Viewer.Type.Client ||
+                         viewer.ViewerType == Viewer.Type.RemoteSpectator ||
+                         viewer.ViewerType == Viewer.Type.RestrictedRemoteSpectator)
+                {
+                    // TODO: spectators
+                    var client = viewer.MainInterface?.Client;
+
+                    if (client == null)
+                        throw new ExceptionFreeserf(ErrorSystemType.Network, "Client viewer without client interface.");
+
+                    client.UpdateNetworkEvents(networkDataReceiver);
+                }
+            }
         }
 
         void RenderView_ZoomChanged(object sender, EventArgs e)

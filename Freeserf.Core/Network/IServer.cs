@@ -19,7 +19,6 @@
  * along with freeserf.net. If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -59,7 +58,7 @@ namespace Freeserf.Network
     public delegate void ClientLeftHandler(ILocalServer server, IRemoteClient client);
     public delegate bool GameReadyHandler(bool ready);
 
-    public interface ILocalServer : IServer
+    public interface ILocalServer : IServer, INetworkDataHandler
     {
         void Init(bool useServerValues, bool useSameValues, uint mapSize, string mapSeed, IEnumerable<PlayerInfo> players);
         void Update(bool useServerValues, bool useSameValues, uint mapSize, string mapSeed, IEnumerable<PlayerInfo> players);

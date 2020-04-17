@@ -23,6 +23,7 @@ namespace Freeserf
 
         static MainWindow mainWindow = null;
         GameView gameView = null;
+        readonly Network.INetworkDataReceiver networkDataReceiver;
         bool fullscreen = false;
         bool[] pressedMouseButtons = new bool[3];
         bool[] keysDown = new bool[(int)Key.LastKey + 1];
@@ -36,6 +37,7 @@ namespace Freeserf
         private MainWindow(WindowOptions options)
             : base(options)
         {
+            networkDataReceiver = new Network.NetworkDataReceiverFactory().CreateReceiver();
             Load += MainWindow_Load;
         }
 
@@ -337,7 +339,7 @@ namespace Freeserf
 
         private void MainWindow_Update(double delta)
         {
-            // not used for now
+            gameView.UpdateNetworkEvents(networkDataReceiver);
         }
 
         private void MainWindow_StateChanged(WindowState state)
