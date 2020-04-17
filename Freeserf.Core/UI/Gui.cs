@@ -430,7 +430,9 @@ namespace Freeserf.UI
             renderView.SystemKeyPress += RenderView_SystemKeyPress;
         }
 
-        public void UpdateNetworkEvents(Network.INetworkDataReceiver networkDataReceiver)
+        public Network.INetworkDataReceiver NetworkDataReceiver { get; set; }
+
+        public void UpdateNetworkEvents()
         {
             if (viewer != null)
             {
@@ -441,7 +443,8 @@ namespace Freeserf.UI
                     if (server == null)
                         throw new ExceptionFreeserf(ErrorSystemType.Network, "Server viewer without server interface.");
 
-                    server.UpdateNetworkEvents(networkDataReceiver);
+                    server.NetworkDataReceiver = NetworkDataReceiver;
+                    server.UpdateNetworkEvents();
                 }
                 else if (viewer.MainInterface?.Client != null ||
                          viewer.ViewerType == Viewer.Type.Client ||
@@ -454,7 +457,8 @@ namespace Freeserf.UI
                     if (client == null)
                         throw new ExceptionFreeserf(ErrorSystemType.Network, "Client viewer without client interface.");
 
-                    client.UpdateNetworkEvents(networkDataReceiver);
+                    client.NetworkDataReceiver = NetworkDataReceiver;
+                    client.UpdateNetworkEvents();
                 }
             }
         }
