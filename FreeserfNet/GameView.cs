@@ -41,9 +41,8 @@ namespace Freeserf
 
     public class GameView : RenderLayerFactory, IRenderView, IAudioInterface, INetworkDataHandler, IDisposable
     {
-        // these two lines are fore the background map at start
+        // this is for the background map at start
         int mapScrollTicks = 0;
-        Random mapScrollRandom = new Random();
 
         bool disposed = false;
         Context context;
@@ -444,13 +443,9 @@ namespace Freeserf
             if (!gui.Ingame)
             {
                 // if we did not start a game the map in the background is scrolled
-                if (++mapScrollTicks >= 80)
+                if (++mapScrollTicks >= 250)
                 {
-                    var game = GameManager.Instance.GetCurrentGame();
-
-                    if (game != null && game.Map != null)
-                        game.Map.ScrollTo(mapScrollRandom.Next() % game.Map.Columns, mapScrollRandom.Next() % game.Map.Rows);
-
+                    GameManager.Instance.GetCurrentGame()?.ScrollMapRandomly();
                     mapScrollTicks = 0;
                 }
             }

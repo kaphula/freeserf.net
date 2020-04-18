@@ -27,7 +27,7 @@ namespace Freeserf
 {
     using MapPos = UInt32;
 
-    public abstract class MapGenerator
+    internal abstract class MapGenerator
     {
         public enum HeightGenerator
         {
@@ -47,7 +47,7 @@ namespace Freeserf
     }
 
     // Classic map generator as in original game. 
-    public class ClassicMapGenerator : MapGenerator
+    internal class ClassicMapGenerator : MapGenerator
     {
         const uint DefaultMaxLakeArea = 14;
         const uint DefaultWaterLevel = 20;
@@ -1295,7 +1295,7 @@ namespace Freeserf
     }
 
     // Classic map generator that generates identical maps for missions. 
-    public class ClassicMissionMapGenerator : ClassicMapGenerator
+    internal class ClassicMissionMapGenerator : ClassicMapGenerator
     {
         public ClassicMissionMapGenerator(Map map, Random random)
             : base(map, random)
