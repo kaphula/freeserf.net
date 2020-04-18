@@ -60,8 +60,13 @@ namespace Freeserf
 
             try
             {
+#if DEBUG
+                Log.SetStream(Console.OpenStandardOutput());
+                Log.SetLevel(Log.Level.Verbose);
+#else
                 Log.SetStream(File.Create(Path.Combine(Program.ExecutablePath, "log.txt")));
                 Log.SetLevel(Log.Level.Error);
+#endif
             }
             catch (IOException)
             {
@@ -672,7 +677,7 @@ namespace Freeserf
         }
 
 
-        #region IDisposable
+#region IDisposable
 
         private bool disposed = false;
 
@@ -698,7 +703,7 @@ namespace Freeserf
             Dispose(true);
         }
 
-        #endregion
+#endregion
 
     }
 }
