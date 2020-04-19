@@ -150,7 +150,6 @@ namespace Freeserf.UI
         GameType gameType = GameType.Custom;
         int gameMission = 0;
 
-        GameInfo customMission = null;
         readonly RandomInput randomInput = null;
         readonly ListSavedFiles fileList = null;
         readonly ListServers serverList = null;
@@ -418,10 +417,9 @@ namespace Freeserf.UI
 
             SetSize(16 + 320 + 16, 200);
 
-            customMission = new GameInfo(new Random(), false);
-            ServerGameInfo = customMission;
+            ServerGameInfo = new GameInfo(new Random(), false);
 
-            randomInput.SetRandom(customMission.RandomBase);
+            randomInput.SetRandom(ServerGameInfo.RandomBase);
             AddChild(randomInput, 8 + 31 * 8, 12, true);
 
             fileList = new ListSavedFiles(interf);
@@ -850,9 +848,8 @@ namespace Freeserf.UI
                     {
                         if (resetRandomGames)
                         {
-                            customMission = new GameInfo(new Random(), false);
-                            ServerGameInfo = customMission;
-                            randomInput.SetRandom(customMission.RandomBase);
+                            ServerGameInfo = new GameInfo(new Random(), false);
+                            randomInput.SetRandom(ServerGameInfo.RandomBase);
                         }
                         randomInput.Displayed = true;                            
                         fileList.Displayed = false;
@@ -888,9 +885,8 @@ namespace Freeserf.UI
                     {
                         if (resetRandomGames)
                         {
-                            customMission = new GameInfo(new Random(), true);
-                            ServerGameInfo = customMission;
-                            randomInput.SetRandom(customMission.RandomBase);
+                            ServerGameInfo = new GameInfo(new Random(), true);
+                            randomInput.SetRandom(ServerGameInfo.RandomBase);
                         }
                         randomInput.Displayed = true;                        
                         fileList.Displayed = false;
@@ -907,18 +903,17 @@ namespace Freeserf.UI
             {
                 case Action.CreateServer:
                     gameType = GameType.MultiplayerServer;
-                    customMission = new GameInfo(new Random(), false);
-                    ServerGameInfo = customMission;
+                    ServerGameInfo = new GameInfo(new Random(), false);
                     ServerGameInfo.RemoveAllPlayers();
                     ServerGameInfo.AddPlayer(PlayerFace.You, PlayerInfo.PlayerColors[0], 40u, 40u, 40u);
                     randomInput.Displayed = true;
-                    randomInput.SetRandom(customMission.RandomBase);
+                    randomInput.SetRandom(ServerGameInfo.RandomBase);
                     fileList.Displayed = false;
                     serverList.Displayed = false;
                     SetRedraw();
-                    Server = Network.Network.DefaultServerFactory.CreateLocal("TestServer", customMission); // TODO: name should be editable
+                    Server = Network.Network.DefaultServerFactory.CreateLocal("TestServer", ServerGameInfo); // TODO: name should be editable
                     Server.NetworkDataReceiver = interf.NetworkDataHandler.NetworkDataReceiver;
-                    Server.Init(checkBoxSameValues.Checked, checkBoxServerValues.Checked, customMission.MapSize, randomInput.Text, ServerGameInfo.Players);
+                    Server.Init(checkBoxSameValues.Checked, checkBoxServerValues.Checked, ServerGameInfo.MapSize, randomInput.Text, ServerGameInfo.Players);
                     Server.ClientJoined += Server_ClientJoined;
                     Server.ClientLeft += Server_ClientLeft;
                     break;
@@ -996,12 +991,11 @@ namespace Freeserf.UI
 
                                         gameType = GameType.MultiplayerJoined;
 
-                                        customMission = new GameInfo(new Random(), false);
-                                        ServerGameInfo = customMission;
+                                        ServerGameInfo = new GameInfo(new Random(), false);
                                         ServerGameInfo.RemoveAllPlayers();
                                         randomInput.Displayed = true;
                                         randomInput.Enabled = false;
-                                        randomInput.SetRandom(customMission.RandomBase);
+                                        randomInput.SetRandom(ServerGameInfo.RandomBase);
                                         fileList.Displayed = false;
                                         serverList.Displayed = false;
                                         buttonStart.Enabled = false;
@@ -1103,9 +1097,9 @@ namespace Freeserf.UI
                         case GameType.Custom:
                         case GameType.AIvsAI:
                         case GameType.MultiplayerServer:
-                            if (customMission.MapSize == 9u)
+                            if (ServerGameInfo.MapSize == 9u)
                                 return;
-                            customMission.MapSize = customMission.MapSize + 1u;
+                            ServerGameInfo.MapSize = ServerGameInfo.MapSize + 1u;
                             SetRedraw();
                             if (gameType == GameType.MultiplayerServer)
                                 ServerUpdate();
@@ -1123,9 +1117,9 @@ namespace Freeserf.UI
                         case GameType.Custom:
                         case GameType.AIvsAI:
                         case GameType.MultiplayerServer:
-                            if (customMission.MapSize == 3u)
+                            if (ServerGameInfo.MapSize == 3u)
                                 return;
-                            customMission.MapSize = customMission.MapSize - 1u;
+                            ServerGameInfo.MapSize = ServerGameInfo.MapSize - 1u;
                             SetRedraw();
                             if (gameType == GameType.MultiplayerServer)
                                 ServerUpdate();
@@ -1143,9 +1137,9 @@ namespace Freeserf.UI
                         case GameType.Custom:
                         case GameType.AIvsAI:
                         case GameType.MultiplayerServer:
-                            if (customMission.MapSize == 9u)
+                            if (ServerGameInfo.MapSize == 9u)
                                 return;
-                            customMission.MapSize = Math.Min(9u, customMission.MapSize + 2u);
+                            ServerGameInfo.MapSize = Math.Min(9u, ServerGameInfo.MapSize + 2u);
                             SetRedraw();
                             if (gameType == GameType.MultiplayerServer)
                                 ServerUpdate();
@@ -1163,9 +1157,9 @@ namespace Freeserf.UI
                         case GameType.Custom:
                         case GameType.AIvsAI:
                         case GameType.MultiplayerServer:
-                            if (customMission.MapSize == 3u)
+                            if (ServerGameInfo.MapSize == 3u)
                                 return;
-                            customMission.MapSize = Math.Max(3u, customMission.MapSize - 2u);
+                            ServerGameInfo.MapSize = Math.Max(3u, ServerGameInfo.MapSize - 2u);
                             SetRedraw();
                             if (gameType == GameType.MultiplayerServer)
                                 ServerUpdate();
@@ -1204,14 +1198,14 @@ namespace Freeserf.UI
                         string str = randomInput.Text;
 
                         if (str.Length == 16)
-                        {                            
-                            customMission.SetRandomBase(randomInput.GetRandom(), gameType == GameType.AIvsAI);
+                        {
+                            var mission = new GameInfo(randomInput.GetRandom(), gameType == GameType.AIvsAI);
 
-                            // in a multiplayer game this will only affect the map, not the players
+                            // In a multiplayer game this will only affect the map, not the players.
                             if (gameType == GameType.MultiplayerServer)
                             {
                                 var players = new List<PlayerInfo>(ServerGameInfo.Players);
-                                ServerGameInfo = customMission;
+                                ServerGameInfo = mission;
                                 ServerGameInfo.RemoveAllPlayers();
 
                                 foreach (var player in players)
@@ -1219,14 +1213,14 @@ namespace Freeserf.UI
                                     ServerGameInfo.AddPlayer(player);
                                 }
 
-                                randomInput.SetRandom(customMission.RandomBase);
+                                randomInput.SetRandom(ServerGameInfo.RandomBase);
                                 SetRedraw();
 
                                 ServerUpdate();
                             }
                             else
                             {
-                                ServerGameInfo = customMission;
+                                ServerGameInfo = mission;
                             }
 
                             SetRedraw();
@@ -1340,7 +1334,7 @@ namespace Freeserf.UI
             Server.Update(
                 checkBoxSameValues.Checked,
                 checkBoxServerValues.Checked,
-                customMission.MapSize,
+                ServerGameInfo.MapSize,
                 randomInput.Text,
                 ServerGameInfo.Players
             );
@@ -1362,9 +1356,8 @@ namespace Freeserf.UI
                 var serverInfo = Client.LobbyData.ServerInfo;
                 var players = Client.LobbyData.Players;
 
-                customMission = new GameInfo(new Random(serverInfo.MapSeed), false);
-                customMission.MapSize = serverInfo.MapSize;
-                ServerGameInfo = customMission;
+                ServerGameInfo = new GameInfo(new Random(serverInfo.MapSeed), false);
+                ServerGameInfo.MapSize = serverInfo.MapSize;
                 ServerGameInfo.RemoveAllPlayers();
 
                 for (int i = 0; i < players.Count; ++i)
@@ -1373,7 +1366,7 @@ namespace Freeserf.UI
                         (uint)players[i].Intelligence, (uint)players[i].Supplies, (uint)players[i].Reproduction);
                 }
 
-                randomInput.SetRandom(customMission.RandomBase);
+                randomInput.SetRandom(ServerGameInfo.RandomBase);
 
                 SetRedraw();
             }
