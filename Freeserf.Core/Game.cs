@@ -89,7 +89,7 @@ namespace Freeserf
         public void ResetDirtyFlag()
         {
             state.ResetDirtyFlag();
-            Map.ResetDirtyFlag();
+            Map?.ResetDirtyFlag();
 
             foreach (var player in Players)
                 player.ResetDirtyFlag();
@@ -129,7 +129,7 @@ namespace Freeserf
         public GameTime GameTime => state.GameTime; // in seconds
         public GameTime NextGameTime => GameTime + (gameTimeTicksOfSecond + state.GameSpeed) / Global.TICKS_PER_SEC;
 
-        internal Game()
+        internal Game(Map map)
         {
             AI.ClearMemory();
 
@@ -157,10 +157,13 @@ namespace Freeserf
             birdSoundCounter = 0;
 
             GoldTotal = 0;
+
+            if (map != null)
+                Map = new Map(map.Geometry, null);
         }
 
         internal Game(Render.IRenderView renderView, IAudioInterface audioInterface)
-            : this()
+            : this(null)
         {
             this.renderView = renderView;
             this.audioInterface = audioInterface;
