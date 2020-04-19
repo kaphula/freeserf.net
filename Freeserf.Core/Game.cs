@@ -159,7 +159,7 @@ namespace Freeserf
             GoldTotal = 0;
 
             if (map != null)
-                Map = new Map(map.Geometry, null);
+                Map = new Map(map.Geometry, null, map);
         }
 
         internal Game(Render.IRenderView renderView, IAudioInterface audioInterface)
