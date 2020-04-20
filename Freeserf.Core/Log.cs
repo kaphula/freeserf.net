@@ -128,15 +128,21 @@ namespace Freeserf
 
             public virtual void Write(ErrorSystemType subsystem, string text)
             {
-                var stream = this[subsystem];
-
-                if (stream == null)
+                if (this.stream == null)
                     return;
 
-                stream += text;
-                stream += Environment.NewLine;
+                lock (this.stream)
+                {
+                    var stream = this[subsystem];
 
-                this.stream.Flush();
+                    if (stream == null)
+                        return;
+
+                    stream += text;
+                    stream += Environment.NewLine;
+
+                    this.stream.Flush();
+                }
             }
 
             public virtual Stream this[ErrorSystemType subsystem]
