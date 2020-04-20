@@ -178,15 +178,12 @@ namespace Freeserf
             Flags.Allocate();
         }
 
-        public void Close()
+        public void ClearVisuals()
         {
             // delete all render objects
 
             foreach (var building in renderBuildings)
                 building.Value.Delete();
-
-            foreach (var building in renderBuildingsInProgress)
-                building.Delete();
 
             foreach (var serf in renderSerfs)
                 serf.Value.Delete();
@@ -210,6 +207,11 @@ namespace Freeserf
             renderObjects.Clear();
             renderRoadSegments.Clear();
             renderBorderSegments.Clear();
+        }
+
+        public void Close()
+        {
+            ClearVisuals();
 
             // close map (and delete render map)
             Map.Close();
@@ -1879,7 +1881,10 @@ namespace Freeserf
                 Map?.SetObject(building.Position, Map.Object.None, 0);
 
             if (renderBuildings.TryRemove(building, out var renderBuilding) && renderBuilding != null)
+            {
+                renderBuildingsInProgress.Remove(renderBuilding);
                 renderBuilding.Delete();
+            }
 
             Buildings.Erase(building.Index);
         }
@@ -2562,18 +2567,20 @@ namespace Freeserf
 
                 if (buildingList[i].Index > 0u)
                 {
-                    // if a building burns we have to update its rendering so ensure that is is updated when visible
-                    if (buildingList[i].IsBurning)
-                    {
-                        if (renderBuildings.ContainsKey(buildingList[i]) && renderBuildings[buildingList[i]].Visible)
-                        {
-                            if (!renderBuildingsInProgress.Contains(renderBuildings[buildingList[i]]))
-                                renderBuildingsInProgress.Add(renderBuildings[buildingList[i]]);
-                        }
-                    }
-
                     if (renderBuildings.ContainsKey(buildingList[i]))
+                    {
+                        // if a building burns we have to update its rendering so ensure that is is updated when visible
+                        if (buildingList[i].IsBurning)
+                        {
+                            if (renderBuildings[buildingList[i]].Visible)
+                            {
+                                if (!renderBuildingsInProgress.Contains(renderBuildings[buildingList[i]]))
+                                    renderBuildingsInProgress.Add(renderBuildings[buildingList[i]]);
+                            }
+                        }
+
                         renderBuildings[buildingList[i]].Update(Tick, Map.RenderMap, buildingList[i].Position);
+                    }
                 }
             }
 
