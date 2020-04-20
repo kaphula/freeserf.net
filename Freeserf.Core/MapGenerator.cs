@@ -21,7 +21,6 @@
  */
 
 using System;
-using System.Linq;
 
 namespace Freeserf
 {
@@ -738,7 +737,7 @@ namespace Freeserf
         {
             foreach (var position in map.Geometry)
             {
-                tiles[(int)position].Height = (tiles[(int)position].Height + 6) >> 3;
+                tiles[(int)position].Height = (tiles[(int)position].Height + 5) >> 3;
             }
         }
 
