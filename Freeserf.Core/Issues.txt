@@ -3,6 +3,7 @@
 - Improve grid drawing in minimap?
 - In rare cases a flag seems to have the same baseline as an adjacent building. Due to animation baseline change it flickers.
 	- This is fixed but remains true for military building white flags
+- When leaving in fullscreen mode (game init box exit button) the next instance doesn't center the viewport
 
 
 Non-working code:
