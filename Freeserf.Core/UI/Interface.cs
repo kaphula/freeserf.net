@@ -294,9 +294,7 @@ namespace Freeserf.UI
 
                 lock (gameLock)
                 {
-
                     EnsureViewport();
-
                 }
             }
 
