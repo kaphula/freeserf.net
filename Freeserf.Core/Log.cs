@@ -2,7 +2,7 @@
  * Log.cs - Logging
  *
  * Copyright (C) 2012-2016  Jon Lund Steffensen <jonlst@gmail.com>
- * Copyright (C) 2018       Robert Schneckenhaus <robert.schneckenhaus@web.de>
+ * Copyright (C) 2018-2020  Robert Schneckenhaus <robert.schneckenhaus@web.de>
  *
  * This file is part of freeserf.net. freeserf.net is based on freeserf.
  *
@@ -34,10 +34,8 @@
    be interested in. */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Freeserf
 {
@@ -58,8 +56,6 @@ namespace Freeserf
         {
             protected StreamWriter streamWriter;
 
-            public System.IO.Stream UnderlyingStream => streamWriter?.BaseStream ?? streamWriter.BaseStream;
-
             public Stream(System.IO.Stream stream)
             {
                 streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024, true);
@@ -68,7 +64,6 @@ namespace Freeserf
             public static Stream operator +(Stream stream, string val)
             {
                 stream.streamWriter.Write(val);
-                stream.streamWriter.Flush();
 
                 return stream;
             }
@@ -76,10 +71,11 @@ namespace Freeserf
             public static Stream operator +(Stream stream, int val)
             {
                 stream.streamWriter.Write(val);
-                stream.streamWriter.Flush();
 
                 return stream;
             }
+
+            public void Flush() => streamWriter?.Flush();
 
 
             #region IDisposable Support
@@ -141,7 +137,7 @@ namespace Freeserf
                     stream += text;
                     stream += Environment.NewLine;
 
-                    this.stream.Flush();
+                    stream.Flush();
                 }
             }
 
@@ -154,7 +150,7 @@ namespace Freeserf
 
                     var stream = new Stream(this.stream);
 
-                    stream += prefix + ": [" + subsystem.ToString() + "] ";
+                    stream += DateTime.Now.ToString("HH:mm:ss") + " " + prefix + ": [" + subsystem.ToString() + "] ";
 
                     return stream;
                 }
