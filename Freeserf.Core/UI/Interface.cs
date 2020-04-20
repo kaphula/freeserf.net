@@ -178,6 +178,18 @@ namespace Freeserf.UI
             cursorSprite.Y = y - cursorSprite.Height / 2;
         }
 
+        internal void AllowInput(bool allow)
+        {
+            if (Viewport != null)
+                Viewport.Enabled = allow;
+            if (PanelBar != null)
+                PanelBar.Enabled = allow;
+            if (PopupBox != null)
+                PopupBox.Enabled = allow;
+
+            // TODO: if allow = false, game leaving should be possible
+        }
+
         public override bool HandleEvent(Event.EventArgs e)
         {
             if (!Enabled || !Displayed)
@@ -722,8 +734,8 @@ namespace Freeserf.UI
                 }
                 else
                 {
-                    if (Viewer.ViewerType == Viewer.Type.Client)
-                        Client.SendUserAction(Network.UserActionData.CreatePlaceRoadUserAction(Network.Global.SpontaneousMessage, Game, buildingRoad.Copy(), false));
+                    if (Viewer is ClientViewer clientViewer)
+                        clientViewer.SendUserAction(Network.UserActionData.CreatePlaceRoadUserAction(Network.Global.SpontaneousMessage, Game, buildingRoad.Copy(), false));
                     else if (Viewer.ViewerType == Viewer.Type.Server)
                         Server.GameDirty = true;
 
@@ -811,8 +823,8 @@ namespace Freeserf.UI
 
             if (mapCursorType == CursorType.RemovableFlag)
             {
-                if (Viewer.ViewerType == Viewer.Type.Client)
-                    Client.SendUserAction(Network.UserActionData.CreateDemolishFlagUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
+                if (Viewer is ClientViewer clientViewer)
+                    clientViewer.SendUserAction(Network.UserActionData.CreateDemolishFlagUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
                 else if (Viewer.ViewerType == Viewer.Type.Server)
                     Server.GameDirty = true;
 
@@ -832,8 +844,8 @@ namespace Freeserf.UI
                     // TODO 
                 }
 
-                if (Viewer.ViewerType == Viewer.Type.Client)
-                    Client.SendUserAction(Network.UserActionData.CreateDemolishBuildingUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
+                if (Viewer is ClientViewer clientViewer)
+                    clientViewer.SendUserAction(Network.UserActionData.CreateDemolishBuildingUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
                 else if (Viewer.ViewerType == Viewer.Type.Server)
                     Server.GameDirty = true;
 
@@ -863,8 +875,8 @@ namespace Freeserf.UI
 
             UpdateMapCursorPosition(mapCursorPosition);
 
-            if (Viewer.ViewerType == Viewer.Type.Client)
-                Client.SendUserAction(Network.UserActionData.CreatePlaceFlagUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
+            if (Viewer is ClientViewer clientViewer)
+                clientViewer.SendUserAction(Network.UserActionData.CreatePlaceFlagUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
             else if (Viewer.ViewerType == Viewer.Type.Server)
                 Server.GameDirty = true;
         }
@@ -881,8 +893,8 @@ namespace Freeserf.UI
                 return;
             }
 
-            if (Viewer.ViewerType == Viewer.Type.Client)
-                Client.SendUserAction(Network.UserActionData.CreatePlaceBuildingUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
+            if (Viewer is ClientViewer clientViewer)
+                clientViewer.SendUserAction(Network.UserActionData.CreatePlaceBuildingUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
             else if (Viewer.ViewerType == Viewer.Type.Server)
                 Server.GameDirty = true;
 
@@ -906,8 +918,8 @@ namespace Freeserf.UI
                 return;
             }
 
-            if (Viewer.ViewerType == Viewer.Type.Client)
-                Client.SendUserAction(Network.UserActionData.CreatePlaceBuildingUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
+            if (Viewer is ClientViewer clientViewer)
+                clientViewer.SendUserAction(Network.UserActionData.CreatePlaceBuildingUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
             else if (Viewer.ViewerType == Viewer.Type.Server)
                 Server.GameDirty = true;
 
@@ -922,8 +934,8 @@ namespace Freeserf.UI
 
             if (!Game.BuildRoad(buildingRoad.Copy(), Player))
             {
-                if (Viewer.ViewerType == Viewer.Type.Client)
-                    Client.SendUserAction(Network.UserActionData.CreateDemolishFlagUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
+                if (Viewer is ClientViewer clientViewer)
+                    clientViewer.SendUserAction(Network.UserActionData.CreateDemolishFlagUserAction(Network.Global.SpontaneousMessage, Game, mapCursorPosition));
                 else if (Viewer.ViewerType == Viewer.Type.Server)
                     Server.GameDirty = true;
 
@@ -932,8 +944,8 @@ namespace Freeserf.UI
             }
             else
             {
-                if (Viewer.ViewerType == Viewer.Type.Client)
-                    Client.SendUserAction(Network.UserActionData.CreatePlaceRoadUserAction(Network.Global.SpontaneousMessage, Game, buildingRoad.Copy(), false));
+                if (Viewer is ClientViewer clientViewer)
+                    clientViewer.SendUserAction(Network.UserActionData.CreatePlaceRoadUserAction(Network.Global.SpontaneousMessage, Game, buildingRoad.Copy(), false));
                 else if (Viewer.ViewerType == Viewer.Type.Server)
                     Server.GameDirty = true;
 
