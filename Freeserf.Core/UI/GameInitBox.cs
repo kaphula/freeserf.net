@@ -1008,6 +1008,9 @@ namespace Freeserf.UI
 
                         if (gameType == GameType.MultiplayerServer)
                         {
+                            Server.ClientJoined -= Server_ClientJoined;
+                            Server.ClientLeft -= Server_ClientLeft;
+
                             GameManager.Instance.CloseGame();
                             interf = interf.Viewer.ChangeTo(Viewer.Type.Server).MainInterface;
 
