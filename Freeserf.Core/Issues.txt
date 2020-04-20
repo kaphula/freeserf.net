@@ -20,7 +20,9 @@ Non-working code:
 - Serfs should not be leaving the stock/castle if there are waiting serfs around the flag
 - When loading a game and there is an exception during loading (in AI loading at end) the background intro game seem to be drawn messed up.
   I guess because map and stuff are loaded but then are discarded?
+- Sometimes a map pos can't be clicked (mentioned above) and then a double click for road completion won't work.
 - Seen roads without a serf (previously there was one). Sometimes a new serf approaches after a while. Not good.
+  But clicking many times in different spots around did build the road at the end without an end flag!!!
 
 
 Long AI Games:
