@@ -1203,13 +1203,11 @@ namespace Freeserf.UI
 
                         if (str.Length == 16)
                         {
-                            var mission = new GameInfo(randomInput.GetRandom(), gameType == GameType.AIvsAI);
-
                             // In a multiplayer game this will only affect the map, not the players.
                             if (gameType == GameType.MultiplayerServer)
                             {
                                 var players = new List<PlayerInfo>(ServerGameInfo.Players);
-                                ServerGameInfo = mission;
+                                ServerGameInfo.SetRandomBase(randomInput.GetRandom(), false);
                                 ServerGameInfo.RemoveAllPlayers();
 
                                 foreach (var player in players)
@@ -1224,7 +1222,7 @@ namespace Freeserf.UI
                             }
                             else
                             {
-                                ServerGameInfo = mission;
+                                ServerGameInfo = new GameInfo(randomInput.GetRandom(), gameType == GameType.AIvsAI);
                             }
 
                             SetRedraw();
@@ -1283,14 +1281,17 @@ namespace Freeserf.UI
 
         private void Server_ClientLeft(Network.ILocalServer server, IRemoteClient client)
         {
-            lock (ServerGameInfo)
+            if (Server != null && Server.State == ServerState.Lobby)
             {
-                ServerGameInfo.RemovePlayer(client.PlayerIndex, true);
-                playerClientMapping.Remove(client.PlayerIndex);
-                SetRedraw();
-            }
+                lock (ServerGameInfo)
+                {
+                    ServerGameInfo.RemovePlayer(client.PlayerIndex, true);
+                    playerClientMapping.Remove(client.PlayerIndex);
+                    SetRedraw();
+                }
 
-            ServerUpdate();
+                ServerUpdate();
+            }
         }
 
         private void Server_ClientJoined(ILocalServer server, IRemoteClient client)
