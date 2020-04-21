@@ -39,6 +39,8 @@ using System.Text;
 
 namespace Freeserf
 {
+    public delegate bool LogFilter(ErrorSystemType logType, string message);
+
     public class Log
     {
         public enum Level
@@ -127,6 +129,9 @@ namespace Freeserf
                 if (this.stream == null)
                     return;
 
+                if (logFilter != null && !logFilter(subsystem, text))
+                    return;
+
                 lock (this.stream)
                 {
                     var stream = this[subsystem];
@@ -185,6 +190,13 @@ namespace Freeserf
             Info.ApplyLevel();
             Warn.ApplyLevel();
             Error.ApplyLevel();
+        }
+
+        private static LogFilter logFilter;
+
+        public static void SetLogFilter(LogFilter filter)
+        {
+            logFilter = filter;
         }
 
         public static Logger Verbose = new Logger(Level.Verbose, "Verbose");

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
-using System.Timers;
+using System.Linq;
 using Freeserf.Renderer;
-using Orientation = Freeserf.Renderer.Orientation;
 using Silk.NET.Input.Common;
 using Silk.NET.Window;
 using Silk.NET.Windowing.Common;
@@ -62,7 +61,7 @@ namespace Freeserf
             {
 #if DEBUG
                 Log.SetStream(Console.OpenStandardOutput());
-                Log.SetLevel(Log.Level.Verbose);
+                Log.SetLevel(Log.Level.Debug);
 #else
                 Log.SetStream(File.Create(Path.Combine(Program.ExecutablePath, "log.txt")));
                 Log.SetLevel(Log.Level.Error);
@@ -82,7 +81,9 @@ namespace Freeserf
 
                 if (initInfo.ConsoleWindow)
                 {
-                    // TODO
+#if !DEBUG
+                    Log.SetStream(Console.OpenStandardOutput());
+#endif
                 }
 
                 UserConfig.Load(FileSystem.Paths.UserConfigPath);
