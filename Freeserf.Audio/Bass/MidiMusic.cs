@@ -12,7 +12,7 @@ namespace Freeserf.Audio.Bass
 
         static uint GetControllerEventType(byte controller)
         {
-            return controller switch
+            return (uint) (controller switch
             {
                 0 => 10,    // Bank select
                 1 => 11,    // Modulation
@@ -32,7 +32,7 @@ namespace Freeserf.Audio.Bass
                 91 => 23,   // Reverb
                 93 => 24,   // Chorus
                 _ => 42,    // Map everything else to user effect to ignore it.
-            };
+            });
         }
 
         static int LoadMidi(XMI xmi)
