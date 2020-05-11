@@ -1,12 +1,10 @@
-﻿using System;
-using System.Drawing;
-using System.IO;
-using System.Timers;
-using Freeserf.Renderer;
-using Orientation = Freeserf.Renderer.Orientation;
+﻿using Freeserf.Renderer;
 using Silk.NET.Input.Common;
 using Silk.NET.Window;
 using Silk.NET.Windowing.Common;
+using System;
+using System.Drawing;
+using System.IO;
 
 namespace Freeserf
 {
@@ -24,13 +22,13 @@ namespace Freeserf
         static MainWindow mainWindow = null;
         GameView gameView = null;
         bool fullscreen = false;
-        bool[] pressedMouseButtons = new bool[3];
-        bool[] keysDown = new bool[(int)Key.LastKey + 1];
+        readonly bool[] pressedMouseButtons = new bool[3];
+        readonly bool[] keysDown = new bool[(int)Key.LastKey + 1];
         int lastDragX = int.MinValue;
         int lastDragY = int.MinValue;
         static Global.InitInfo initInfo = null;
         static Data.DataSource dataSource = null;
-        bool specialClickPerformed = false;
+        bool scrolled = false;
         Point clickPosition = Point.Empty;
 
         private MainWindow(WindowOptions options)
@@ -58,13 +56,15 @@ namespace Freeserf
 
             try
             {
+#if !DEBUG
                 Log.SetStream(File.Create(Path.Combine(Program.ExecutablePath, "log.txt")));
+#endif
                 Log.SetLevel(Log.Level.Error);
             }
             catch (IOException)
             {
                 // TODO: logging not possible
-            }            
+            }
 
             initInfo = Global.Init(args); // this may change the log level
 
@@ -85,7 +85,7 @@ namespace Freeserf
 
                 if (!data.Load(dataPath, UserConfig.Game.GraphicDataUsage, UserConfig.Game.SoundDataUsage, UserConfig.Game.MusicDataUsage))
                 {
-                    Console.WriteLine("Error: Error loading DOS data.");
+                    Log.Error.Write(ErrorSystemType.Data, "Error: Error loading DOS data.");
                     return null;
                 }
 
@@ -356,7 +356,7 @@ namespace Freeserf
             else if (buttons.HasFlag(MouseButtons.Right))
                 return Event.Button.Right;
             else if (buttons.HasFlag(MouseButtons.Middle))
-                return Event.Button.Middle;            
+                return Event.Button.Middle;
             else
                 return Event.Button.None;
         }
@@ -490,21 +490,25 @@ namespace Freeserf
                     return;
 
                 UpdateMouseState(buttons);
+
                 if (buttons.HasFlag(MouseButtons.Left) || buttons.HasFlag(MouseButtons.Right))
                 {
                     if (lastDragX == int.MinValue)
                         return;
+
                     bool dragAllowed = gameView.NotifyDrag(position.X, position.Y, lastDragX - position.X, lastDragY - position.Y, ConvertMouseButtons(buttons));
 
                     // lock the mouse if dragging with right button
                     if (dragAllowed)
                     {
-                        mouse.Cursor.CursorMode = CursorMode.Raw;
+                        CursorMode = CursorMode.Disabled;
+                        scrolled = true;
                     }
                     else if (buttons.HasFlag(MouseButtons.Left))
                     {
-                         gameView.SetCursorPosition(position.X, position.Y);
+                        gameView.SetCursorPosition(position.X, position.Y);
                     }
+
                     lastDragX = position.X;
                     lastDragY = position.Y;
                 }
@@ -530,7 +534,14 @@ namespace Freeserf
             // restore cursor from successful locked dragging
             if (button.HasFlag(MouseButtons.Right))
             {
-                mouse.Cursor.CursorMode = CursorVisible ? CursorMode.Normal : CursorMode.Hidden;
+                CursorMode = CursorVisible ? CursorMode.Normal : CursorMode.Hidden;
+                if (scrolled && (UserConfig.Game.Options & (int)Option.ResetCursorAfterScrolling) != 0)
+                {
+                    CursorPosition = new PointF(Width / 2, Height / 2);
+                    gameView.SetCursorPosition(Width / 2, Height / 2);
+                }
+                scrolled = false;
+                gameView.NotifyStopDrag();
             }
 
             base.OnMouseUp(position, button);
@@ -543,15 +554,13 @@ namespace Freeserf
             clickPosition = position;
 
             // left + right = special click
-            if ((button.HasFlag(MouseButtons.Left) || button.HasFlag(MouseButtons.Right)))
+            if (button.HasFlag(MouseButtons.Left) || button.HasFlag(MouseButtons.Right))
             {
                 if (
                     pressedMouseButtons[(int)MouseButtonIndex.Left] &&
                     pressedMouseButtons[(int)MouseButtonIndex.Right]
                 )
                 {
-                    specialClickPerformed = true;
-
                     try
                     {
                         gameView?.NotifySpecialClick(position.X, position.Y);
@@ -560,9 +569,6 @@ namespace Freeserf
                     {
                         ReportException("MouseDown", ex);
                     }
-
-                    pressedMouseButtons[(int)MouseButtonIndex.Left] = false;
-                    pressedMouseButtons[(int)MouseButtonIndex.Right] = false;
                 }
                 else
                 {
@@ -576,10 +582,14 @@ namespace Freeserf
 
         protected override void OnClick(Point position, MouseButtons button)
         {
-            if (specialClickPerformed && (button == MouseButtons.Right || button == MouseButtons.Left))
+            // left + right = special click
+            if (button.HasFlag(MouseButtons.Left) || button.HasFlag(MouseButtons.Right))
             {
-                specialClickPerformed = false;
-                return;
+                if (
+                    pressedMouseButtons[(int)MouseButtonIndex.Left] &&
+                    pressedMouseButtons[(int)MouseButtonIndex.Right]
+                )
+                    return; // special clicks are handled in OnMouseDown
             }
 
             try

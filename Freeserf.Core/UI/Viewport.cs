@@ -2,7 +2,7 @@
  * Viewport.cs - Viewport GUI component
  *
  * Copyright (C) 2013       Jon Lund Steffensen <jonlst@gmail.com>
- * Copyright (C) 2018-2019  Robert Schneckenhaus <robert.schneckenhaus@web.de>
+ * Copyright (C) 2018-2020  Robert Schneckenhaus <robert.schneckenhaus@web.de>
  *
  * This file is part of freeserf.net. freeserf.net is based on freeserf.
  *
@@ -20,9 +20,9 @@
  * along with freeserf.net. If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using Freeserf.Render;
 using Freeserf.Data;
+using Freeserf.Render;
+using System;
 
 namespace Freeserf.UI
 {
@@ -409,6 +409,27 @@ namespace Freeserf.UI
             }
             else
             {
+                // Fast building
+                if (interf.AccessRights == Viewer.Access.Player &&
+                    interf.GetOption(Option.FastBuilding) &&
+                    interf.GetMapCursorPosition() == mapPosition)
+                {
+                    if (!interf.Player.HasCastle)
+                    {
+                        if (interf.Game.CanBuildCastle(mapPosition, interf.Player))
+                            interf.BuildCastle();
+                    }
+                    else if (interf.Game.Map.HasFlag(mapPosition))
+                        interf.BuildRoadBegin();
+                    else if (interf.Game.CanBuildAnything(mapPosition, interf.Player))
+                    {
+                        if (!interf.Game.CanBuildSmall(mapPosition)) // only flags are possible
+                            interf.BuildFlag();
+                        else
+                            interf.OpenPopup(interf.Game.CanBuildLarge(mapPosition) ? PopupBox.Type.BasicBldFlip : PopupBox.Type.BasicBld);
+                    }
+                }
+
                 interf.UpdateMapCursorPosition(mapPosition);
                 PlaySound(Freeserf.Audio.Audio.TypeSfx.Click);
             }
@@ -505,7 +526,7 @@ namespace Freeserf.UI
                     PlaySound(Freeserf.Audio.Audio.TypeSfx.Click);
                 }
                 else
-                { 
+                {
                     // Building 
                     if (map.GetOwner(mapPosition) == player.Index || interf.AccessRights != Viewer.Access.Player)
                     {
@@ -582,7 +603,7 @@ namespace Freeserf.UI
             int scrollX = totalDragX / RenderMap.TILE_WIDTH;
             int scrollY = totalDragY / RenderMap.TILE_HEIGHT;
 
-            if (interf.GetConfig(1)) // invert scrolling
+            if (interf.GetOption(Option.InvertScrolling)) // invert scrolling
                 map.Scroll(-scrollX, -scrollY);
             else
                 map.Scroll(scrollX, scrollY);

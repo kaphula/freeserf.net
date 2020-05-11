@@ -74,6 +74,7 @@ namespace Freeserf.UI
             SettSelectFile, // UNUSED 
             Options,
             ExtendedOptions,
+            ScrollOptions,
             GameInitOptions,
             ExtendedGameInitOptions,
             CastleResources,
@@ -256,6 +257,7 @@ namespace Freeserf.UI
             ShowQuit,
             ShowOptions,
             ShowExtendedOptions,
+            ShowScrollOptions,
             ShowSave,
             CycleKnights,
             OptionsMessageCount,
@@ -328,6 +330,8 @@ namespace Freeserf.UI
             OptionsFastMapclick,
             OptionsFastBuilding,
             OptionsInvertScrolling,
+            OptionsHideCursorWhileScrolling,
+            OptionsResetCursorAfterScrolling,
             Demolish,
             OptionsSfx,
             Save,
@@ -524,7 +528,7 @@ namespace Freeserf.UI
                 case Type.Adv2Bld:
                     SetBox(Type.BasicBldFlip);
                     break;
-                // TODO ...
+                    // TODO ...
             }
         }
 
@@ -784,11 +788,12 @@ namespace Freeserf.UI
                 case Type.InventoryPriorities:
                 case Type.KnightSettings:
                     pattern = BackgroundPattern.CheckerdDiagonalBrown;
-                    break;                
+                    break;
                 case Type.QuitConfirm:
                 case Type.NoSaveQuitConfirm:
                 case Type.Options:
                 case Type.ExtendedOptions:
+                case Type.ScrollOptions:
                 case Type.GameInitOptions:
                 case Type.ExtendedGameInitOptions:
                 case Type.LoadSave:
@@ -1083,7 +1088,7 @@ namespace Freeserf.UI
 
         // Get the sprite number for a face
         static uint GetPlayerFaceSprite(PlayerFace face)
-		{
+        {
             if (face != 0)
                 return 0x10bu + (uint)face;
 
@@ -1091,7 +1096,7 @@ namespace Freeserf.UI
         }
 
         void DrawMapBox()
-		{
+        {
             MiniMap.SetSize(128, 128);
 
             SetButton(8, 137, (uint)MiniMap.GetOwnershipMode(), Action.MinimapMode);
@@ -1104,7 +1109,7 @@ namespace Freeserf.UI
         }
 
         void DrawMineBuildingBox()
-		{
+        {
             int index = 0;
             int num = 4;
 
@@ -1124,7 +1129,7 @@ namespace Freeserf.UI
 
         // flip means the user can change the page
         void DrawBasicBuildingBox(bool flip)
-		{
+        {
             int num = 6;
             int index = 0;
 
@@ -1155,7 +1160,7 @@ namespace Freeserf.UI
         }
 
         void DrawAdv1BuildingBox()
-		{
+        {
             int index = 0;
 
             SetBuilding(index++, 8, 24, Building.Type.Butcher);
@@ -1172,7 +1177,7 @@ namespace Freeserf.UI
         }
 
         void DrawAdv2BuildingBox()
-		{
+        {
             int num = 4;
             int index = 0;
 
@@ -1227,65 +1232,65 @@ namespace Freeserf.UI
         };
 
         void DrawResourcesBox(ResourceMap resources)
-		{
-            SetIcon(16,   9, 0x28);
-            SetIcon(16,  25, 0x29);
-            SetIcon(16,  41, 0x2a);
-            SetIcon(16,  57, 0x2b);
-            SetIcon(16,  73, 0x2e);
-            SetIcon(16,  89, 0x2c);
+        {
+            SetIcon(16, 9, 0x28);
+            SetIcon(16, 25, 0x29);
+            SetIcon(16, 41, 0x2a);
+            SetIcon(16, 57, 0x2b);
+            SetIcon(16, 73, 0x2e);
+            SetIcon(16, 89, 0x2c);
             SetIcon(16, 105, 0x2d);
             SetIcon(16, 121, 0x2f);
             SetIcon(16, 137, 0x30);
-            SetIcon(56,   9, 0x31);
-            SetIcon(56,  25, 0x32);
-            SetIcon(56,  41, 0x36);
-            SetIcon(56,  57, 0x37);
-            SetIcon(56,  73, 0x35);
-            SetIcon(56,  89, 0x38);
+            SetIcon(56, 9, 0x31);
+            SetIcon(56, 25, 0x32);
+            SetIcon(56, 41, 0x36);
+            SetIcon(56, 57, 0x37);
+            SetIcon(56, 73, 0x35);
+            SetIcon(56, 89, 0x38);
             SetIcon(56, 105, 0x39);
             SetIcon(56, 121, 0x34);
             SetIcon(56, 137, 0x33);
-            SetIcon(96,   9, 0x3a);
-            SetIcon(96,  25, 0x3b);
-            SetIcon(96,  41, 0x22);
-            SetIcon(96,  57, 0x23);
-            SetIcon(96,  73, 0x24);
-            SetIcon(96,  89, 0x25);
+            SetIcon(96, 9, 0x3a);
+            SetIcon(96, 25, 0x3b);
+            SetIcon(96, 41, 0x22);
+            SetIcon(96, 57, 0x23);
+            SetIcon(96, 73, 0x24);
+            SetIcon(96, 89, 0x25);
             SetIcon(96, 105, 0x26);
             SetIcon(96, 121, 0x27);
 
-            SetNumberText(32,   13, (uint)resources[Resource.Type.Lumber]);
-            SetNumberText(32,   29, (uint)resources[Resource.Type.Plank]);
-            SetNumberText(32,   45, (uint)resources[Resource.Type.Boat]);
-            SetNumberText(32,   61, (uint)resources[Resource.Type.Stone]);
-            SetNumberText(32,   77, (uint)resources[Resource.Type.Coal]);
-            SetNumberText(32,   93, (uint)resources[Resource.Type.IronOre]);
-            SetNumberText(32,  109, (uint)resources[Resource.Type.Steel]);
-            SetNumberText(32,  125, (uint)resources[Resource.Type.GoldOre]);
-            SetNumberText(32,  141, (uint)resources[Resource.Type.GoldBar]);
-            SetNumberText(72,   13, (uint)resources[Resource.Type.Shovel]);
-            SetNumberText(72,   29, (uint)resources[Resource.Type.Hammer]);
-            SetNumberText(72,   45, (uint)resources[Resource.Type.Axe]);
-            SetNumberText(72,   61, (uint)resources[Resource.Type.Saw]);
-            SetNumberText(72,   77, (uint)resources[Resource.Type.Scythe]);
-            SetNumberText(72,   93, (uint)resources[Resource.Type.Pick]);
-            SetNumberText(72,  109, (uint)resources[Resource.Type.Pincer]);
-            SetNumberText(72,  125, (uint)resources[Resource.Type.Cleaver]);
-            SetNumberText(72,  141, (uint)resources[Resource.Type.Rod]);
-            SetNumberText(112,  13, (uint)resources[Resource.Type.Sword]);
-            SetNumberText(112,  29, (uint)resources[Resource.Type.Shield]);
-            SetNumberText(112,  45, (uint)resources[Resource.Type.Fish]);
-            SetNumberText(112,  61, (uint)resources[Resource.Type.Pig]);
-            SetNumberText(112,  77, (uint)resources[Resource.Type.Meat]);
-            SetNumberText(112,  93, (uint)resources[Resource.Type.Wheat]);
+            SetNumberText(32, 13, (uint)resources[Resource.Type.Lumber]);
+            SetNumberText(32, 29, (uint)resources[Resource.Type.Plank]);
+            SetNumberText(32, 45, (uint)resources[Resource.Type.Boat]);
+            SetNumberText(32, 61, (uint)resources[Resource.Type.Stone]);
+            SetNumberText(32, 77, (uint)resources[Resource.Type.Coal]);
+            SetNumberText(32, 93, (uint)resources[Resource.Type.IronOre]);
+            SetNumberText(32, 109, (uint)resources[Resource.Type.Steel]);
+            SetNumberText(32, 125, (uint)resources[Resource.Type.GoldOre]);
+            SetNumberText(32, 141, (uint)resources[Resource.Type.GoldBar]);
+            SetNumberText(72, 13, (uint)resources[Resource.Type.Shovel]);
+            SetNumberText(72, 29, (uint)resources[Resource.Type.Hammer]);
+            SetNumberText(72, 45, (uint)resources[Resource.Type.Axe]);
+            SetNumberText(72, 61, (uint)resources[Resource.Type.Saw]);
+            SetNumberText(72, 77, (uint)resources[Resource.Type.Scythe]);
+            SetNumberText(72, 93, (uint)resources[Resource.Type.Pick]);
+            SetNumberText(72, 109, (uint)resources[Resource.Type.Pincer]);
+            SetNumberText(72, 125, (uint)resources[Resource.Type.Cleaver]);
+            SetNumberText(72, 141, (uint)resources[Resource.Type.Rod]);
+            SetNumberText(112, 13, (uint)resources[Resource.Type.Sword]);
+            SetNumberText(112, 29, (uint)resources[Resource.Type.Shield]);
+            SetNumberText(112, 45, (uint)resources[Resource.Type.Fish]);
+            SetNumberText(112, 61, (uint)resources[Resource.Type.Pig]);
+            SetNumberText(112, 77, (uint)resources[Resource.Type.Meat]);
+            SetNumberText(112, 93, (uint)resources[Resource.Type.Wheat]);
             SetNumberText(112, 109, (uint)resources[Resource.Type.Flour]);
             SetNumberText(112, 125, (uint)resources[Resource.Type.Bread]);
         }
 
         // TODO: If a serf type counts more than 99 the space is too small
         void DrawSerfsBox(uint[] serfCounts, int total)
-		{
+        {
             SetIcon(16, 9, 0x09);
             SetIcon(16, 25, 0x0a);
             SetIcon(16, 41, 0x0b);
@@ -1345,7 +1350,7 @@ namespace Freeserf.UI
         }
 
         void DrawStatMenuBox()
-		{
+        {
             SetButton(16, 21, 72u, Action.ShowFoodProductionCycle);
             SetButton(56, 21, 73u, Action.ShowMaterialProductionCycle);
             SetButton(96, 21, 77u, Action.ShowIdleAndPotentialSettlerStats);
@@ -1363,14 +1368,14 @@ namespace Freeserf.UI
         }
 
         void DrawResourceStatsBox()
-		{
+        {
             DrawResourcesBox(interf.Player.GetStatsResources());
 
             SetButton(120, 137, 60u, Action.ShowStatMenu);
         }
 
         void DrawBuildingCount(int x, int y, Building.Type type)
-		{
+        {
             var player = interf.Player;
 
             uint numComplete = player.GetCompletedBuildingCount(type);
@@ -1388,10 +1393,10 @@ namespace Freeserf.UI
 
             if (numIncomplete > 0)
                 SetIcon(x + xOffset, y, 240u + Math.Min(numIncomplete, 10u));
-		}
+        }
 
         void DrawBuildingStats1Box()
-		{
+        {
             SetBuildingIcon(8, 14, Building.Type.Stock);
             SetBuildingIcon(24, 86, Building.Type.Hut);
             SetBuildingIcon(72, 16, Building.Type.Tower);
@@ -1407,7 +1412,7 @@ namespace Freeserf.UI
         }
 
         void DrawBuildingStats2Box()
-		{
+        {
             SetBuildingIcon(8, 13, Building.Type.ToolMaker);
             SetBuildingIcon(72, 15, Building.Type.Sawmill);
             SetBuildingIcon(8, 77, Building.Type.WeaponSmith);
@@ -1429,7 +1434,7 @@ namespace Freeserf.UI
         }
 
         void DrawBuildingStats3Box()
-		{
+        {
             SetBuildingIcon(8, 11, Building.Type.PigFarm);
             SetBuildingIcon(72, 12, Building.Type.Farm);
             SetBuildingIcon(8, 70, Building.Type.Fisher);
@@ -1449,7 +1454,7 @@ namespace Freeserf.UI
         }
 
         void DrawBuildingStats4Box()
-		{
+        {
             SetBuildingIcon(8, 13, Building.Type.StoneMine);
             SetBuildingIcon(40, 13, Building.Type.CoalMine);
             SetBuildingIcon(72, 13, Building.Type.IronMine);
@@ -1469,7 +1474,7 @@ namespace Freeserf.UI
         }
 
         void DrawResourceStatisticsBox()
-		{
+        {
             SetButton(8, 84, 0x28, Action.ResourceStatisticsSelectLumber); // lumber
             SetButton(24, 84, 0x29, Action.ResourceStatisticsSelectPlank); // plank
             SetButton(40, 84, 0x2b, Action.ResourceStatisticsSelectStone); // stone
@@ -1765,7 +1770,7 @@ namespace Freeserf.UI
         }
 
         void DrawGaugeBalance(int x, int y, uint value, uint count)
-		{
+        {
             uint sprite = 0xd3;
 
             if (count > 0)
@@ -1827,7 +1832,7 @@ namespace Freeserf.UI
         }
 
         void DrawGaugeFull(int x, int y, uint value, uint count)
-		{
+        {
             uint sprite = 0xc7;
 
             if (count > 0)
@@ -1916,7 +1921,7 @@ namespace Freeserf.UI
         }
 
         void DrawFoodProductionCycleBox()
-		{
+        {
             SetIcon(8, 9, 0x18); // baker 
             SetIcon(8, 25, 0xb4);
             SetIcon(8, 33, 0xb3);
@@ -1982,7 +1987,7 @@ namespace Freeserf.UI
         }
 
         void DrawMaterialProductionCycleBox()
-		{
+        {
             SetIcon(8, 9, 0x11); // miner 
             SetIcon(8, 33, 0x11); // miner 
             SetIcon(8, 65, 0x11); // miner 
@@ -2060,7 +2065,7 @@ namespace Freeserf.UI
         }
 
         void DrawSerfCountBox()
-		{
+        {
             var player = interf.Player;
             int total = 0;
 
@@ -2075,10 +2080,10 @@ namespace Freeserf.UI
             DrawSerfsBox(player.GetSerfCounts(), total);
 
             SetButton(120, 137, 60u, Action.ShowStatMenu);
-		}
+        }
 
         void DrawSerfMeter(int x, int y, int value)
-		{
+        {
             uint sprite = 0xc6;
 
             if (value < 1)
@@ -2118,7 +2123,7 @@ namespace Freeserf.UI
         }
 
         void DrawIdleAndPotentialSerfsBox()
-		{
+        {
             var player = interf.Player;
             var serfs = player.GetStatsSerfsIdle();
             var serfsPotential = player.GetStatsSerfsPotential();
@@ -2156,35 +2161,35 @@ namespace Freeserf.UI
             SetIcon(96, 121, 0x82);
 
             // First column 
-            DrawSerfMeter(3,   0, serfs[Serf.Type.Transporter]);
-            DrawSerfMeter(3,  16, serfs[Serf.Type.Sailor]);
-            DrawSerfMeter(3,  32, serfs[Serf.Type.Digger]);
-            DrawSerfMeter(3,  48, serfs[Serf.Type.Builder]);
-            DrawSerfMeter(3,  64, serfs[Serf.Type.Knight4]);
-            DrawSerfMeter(3,  80, serfs[Serf.Type.Knight3]);
-            DrawSerfMeter(3,  96, serfs[Serf.Type.Knight2]);
+            DrawSerfMeter(3, 0, serfs[Serf.Type.Transporter]);
+            DrawSerfMeter(3, 16, serfs[Serf.Type.Sailor]);
+            DrawSerfMeter(3, 32, serfs[Serf.Type.Digger]);
+            DrawSerfMeter(3, 48, serfs[Serf.Type.Builder]);
+            DrawSerfMeter(3, 64, serfs[Serf.Type.Knight4]);
+            DrawSerfMeter(3, 80, serfs[Serf.Type.Knight3]);
+            DrawSerfMeter(3, 96, serfs[Serf.Type.Knight2]);
             DrawSerfMeter(3, 112, serfs[Serf.Type.Knight1]);
             DrawSerfMeter(3, 128, serfs[Serf.Type.Knight0]);
 
             // Second column 
-            DrawSerfMeter(8,   0, serfs[Serf.Type.Lumberjack]);
-            DrawSerfMeter(8,  16, serfs[Serf.Type.Sawmiller]);
-            DrawSerfMeter(8,  32, serfs[Serf.Type.Smelter]);
-            DrawSerfMeter(8,  48, serfs[Serf.Type.Stonecutter]);
-            DrawSerfMeter(8,  64, serfs[Serf.Type.Forester]);
-            DrawSerfMeter(8,  80, serfs[Serf.Type.Miner]);
-            DrawSerfMeter(8,  96, serfs[Serf.Type.BoatBuilder]);
+            DrawSerfMeter(8, 0, serfs[Serf.Type.Lumberjack]);
+            DrawSerfMeter(8, 16, serfs[Serf.Type.Sawmiller]);
+            DrawSerfMeter(8, 32, serfs[Serf.Type.Smelter]);
+            DrawSerfMeter(8, 48, serfs[Serf.Type.Stonecutter]);
+            DrawSerfMeter(8, 64, serfs[Serf.Type.Forester]);
+            DrawSerfMeter(8, 80, serfs[Serf.Type.Miner]);
+            DrawSerfMeter(8, 96, serfs[Serf.Type.BoatBuilder]);
             DrawSerfMeter(8, 112, serfs[Serf.Type.Toolmaker]);
             DrawSerfMeter(8, 128, serfs[Serf.Type.WeaponSmith]);
 
             // Third column 
-            DrawSerfMeter(13,  0, serfs[Serf.Type.Fisher]);
-            DrawSerfMeter(13,  16, serfs[Serf.Type.PigFarmer]);
-            DrawSerfMeter(13,  32, serfs[Serf.Type.Butcher]);
-            DrawSerfMeter(13,  48, serfs[Serf.Type.Farmer]);
-            DrawSerfMeter(13,  64, serfs[Serf.Type.Miller]);
-            DrawSerfMeter(13,  80, serfs[Serf.Type.Baker]);
-            DrawSerfMeter(13,  96, serfs[Serf.Type.Geologist]);
+            DrawSerfMeter(13, 0, serfs[Serf.Type.Fisher]);
+            DrawSerfMeter(13, 16, serfs[Serf.Type.PigFarmer]);
+            DrawSerfMeter(13, 32, serfs[Serf.Type.Butcher]);
+            DrawSerfMeter(13, 48, serfs[Serf.Type.Farmer]);
+            DrawSerfMeter(13, 64, serfs[Serf.Type.Miller]);
+            DrawSerfMeter(13, 80, serfs[Serf.Type.Baker]);
+            DrawSerfMeter(13, 96, serfs[Serf.Type.Geologist]);
             DrawSerfMeter(13, 112, serfs[Serf.Type.Generic]);
 
             SetButton(120, 137, 60u, Action.ShowStatMenu);
@@ -2196,7 +2201,7 @@ namespace Freeserf.UI
         }
 
         void DrawStartAttackBox()
-		{
+        {
             // draw some trees
             SetTree(24, 42, 0x0);
             SetTree(56, 39, 0xa);
@@ -2251,19 +2256,19 @@ namespace Freeserf.UI
         static string GetResourceAmountText(uint amount)
         {
             if (amount == 0) return "Not Present";
-            else if (amount< 100) return "Minimum";
-            else if (amount< 180) return "Very Few";
-            else if (amount< 240) return "Few";
-            else if (amount< 300) return "Below Average";
-            else if (amount< 400) return "Average";
-            else if (amount< 500) return "Above Average";
-            else if (amount< 600) return "Much";
-            else if (amount< 800) return "Very Much";
+            else if (amount < 100) return "Minimum";
+            else if (amount < 180) return "Very Few";
+            else if (amount < 240) return "Few";
+            else if (amount < 300) return "Below Average";
+            else if (amount < 400) return "Average";
+            else if (amount < 500) return "Above Average";
+            else if (amount < 600) return "Much";
+            else if (amount < 800) return "Very Much";
             return "Perfect";
         }
 
-    void DrawGroundAnalysisBox()
-		{
+        void DrawGroundAnalysisBox()
+        {
             SetIcon(64, 19, 0x1c); // geologist
             SetIcon(16, 59, 0x2f); // gold ore
             SetIcon(16, 79, 0x2c); // iron ore
@@ -2293,7 +2298,7 @@ namespace Freeserf.UI
         }
 
         void DrawSettlerMenuBox()
-		{
+        {
             SetButton(16, 17, 230u, Action.ShowFoodDistribution);
             SetButton(56, 17, 231u, Action.ShowPlanksAndSteelDistribution);
             SetButton(96, 17, 232u, Action.ShowCoalAndWheatDistribution);
@@ -2314,7 +2319,7 @@ namespace Freeserf.UI
         }
 
         void DrawFoodDistributionBox()
-		{
+        {
             SetBuildingIcon(104, 30, Building.Type.StoneMine);
             SetBuildingIcon(72, 50, Building.Type.CoalMine);
             SetBuildingIcon(40, 70, Building.Type.IronMine);
@@ -2347,7 +2352,7 @@ namespace Freeserf.UI
         }
 
         void DrawPlanksAndSteelDistributionBox()
-		{
+        {
             SetBuildingIcon(24, 9, Render.RenderBuilding.MapBuildingFrameSprite[(int)Building.Type.Lumberjack]);
             SetBuildingIcon(24, 50, Building.Type.Boatbuilder);
             SetBuildingIcon(72, 63, Building.Type.ToolMaker);
@@ -2383,7 +2388,7 @@ namespace Freeserf.UI
         }
 
         void DrawCoalAndWheatDistributionBox()
-		{
+        {
             SetBuildingIcon(8, 10, Building.Type.SteelSmelter);
             SetBuildingIcon(88, 9, Building.Type.GoldSmelter);
             SetBuildingIcon(40, 65, Building.Type.WeaponSmith);
@@ -2420,7 +2425,7 @@ namespace Freeserf.UI
         }
 
         void DrawKnightLevelBox()
-		{
+        {
             string[] levelTexts = new string[]
             {
                 "Minimum", "Weak", "Medium", "Good", "Full", "ERROR", "ERROR", "ERROR"
@@ -2466,13 +2471,13 @@ namespace Freeserf.UI
         }
 
         void DrawToolmakerPrioritiesBox()
-		{
-            SetIcon(8,   9, 49u); // shovel
-            SetIcon(8,  25, 50u); // hammer
-            SetIcon(8,  41, 54u); // axe
-            SetIcon(8,  57, 55u); // saw
-            SetIcon(8,  73, 53u); // scythe
-            SetIcon(8,  89, 56u); // pick
+        {
+            SetIcon(8, 9, 49u); // shovel
+            SetIcon(8, 25, 50u); // hammer
+            SetIcon(8, 41, 54u); // axe
+            SetIcon(8, 57, 55u); // saw
+            SetIcon(8, 73, 53u); // scythe
+            SetIcon(8, 89, 56u); // pick
             SetIcon(8, 105, 57u); // pincer
             SetIcon(8, 121, 52u); // cleaver
             SetIcon(8, 137, 51u); // rod
@@ -2526,7 +2531,7 @@ namespace Freeserf.UI
         };
 
         void DrawPopupResourceStairs(byte[] order)
-		{
+        {
             int count = ResourceStairLayout.Length / 2;
 
             for (int i = 0; i < count; ++i)
@@ -2535,10 +2540,10 @@ namespace Freeserf.UI
 
                 SetButton(8 * ResourceStairLayout[2 * position] + 8, ResourceStairLayout[2 * position + 1] + 9, 34u + (uint)i, Action.SetTransportItem1 + position);
             }
-		}
+        }
 
         void DrawTransportPrioritiesBox()
-		{
+        {
             SetButton(16, 129, 237u, Action.TransportPriorityToTop);
             SetButton(32, 129, 238u, Action.TransportPriorityUp);
             SetButton(80, 129, 239u, Action.TransportPriorityDown);
@@ -2560,7 +2565,7 @@ namespace Freeserf.UI
         }
 
         void DrawQuitConfirmBox()
-		{
+        {
             SetText(8, 19, "   Do you want");
             SetText(8, 29, "     to quit");
             SetText(8, 39, "   this game?");
@@ -2568,7 +2573,7 @@ namespace Freeserf.UI
         }
 
         void DrawNoSaveQuitConfirmBox()
-		{
+        {
             SetText(8, 79, "The game has not");
             SetText(8, 89, "   been saved");
             SetText(8, 99, "   recently.");
@@ -2579,46 +2584,60 @@ namespace Freeserf.UI
 
         void DrawExtendedOptionsBox(Action closeAction)
         {
-            SetText(16, 20, "Pathway-");
-            SetText(16, 29, "Scrolling");
+            SetText(16, 20, "Fast");
+            SetText(16, 29, "Mapclick");
             SetText(16, 45, "Fast");
-            SetText(16, 54, "Mapclick");
-            SetText(16, 70, "Fast");
-            SetText(16, 79, "Building");
-            SetText(16, 95, "Invert");
-            SetText(16, 104, "Scrolling");
+            SetText(16, 54, "Building");
 
-            SetButton(112, 21, interf.GetConfig(6) ? 288u : 220u, Action.OptionsPathwayScrolling);
-            SetButton(112, 47, interf.GetConfig(7) ? 288u : 220u, Action.OptionsFastMapclick);
-            SetButton(112, 73, interf.GetConfig(2) ? 288u : 220u, Action.OptionsFastBuilding);
-            SetButton(112, 98, interf.GetConfig(1) ? 288u : 220u, Action.OptionsInvertScrolling);
+            SetButton(112, 21, interf.GetOption(Option.FastMapClick) ? 288u : 220u, Action.OptionsFastMapclick);
+            SetButton(112, 47, interf.GetOption(Option.FastBuilding) ? 288u : 220u, Action.OptionsFastBuilding);
 
             string value = "All";
 
-            if (!interf.GetConfig(3))
+            if (!interf.GetOption(Option.MessagesAll))
             {
                 value = "Most";
 
-                if (!interf.GetConfig(4))
+                if (!interf.GetOption(Option.MessagesMost))
                 {
                     value = "Few";
 
-                    if (!interf.GetConfig(5))
+                    if (!interf.GetOption(Option.MessagesFew))
                     {
                         value = "None";
                     }
                 }
             }
 
-            SetText(16, 122, "Messages");
-            clickableTextField = SetText(96, 122, value);
+            SetText(16, 104, "Messages");
+            clickableTextField = SetText(96, 104, value);
+
+            SetButton(104, 137, 61u, Action.ShowScrollOptions); // flip
+            SetButton(120, 137, 60u, closeAction); // exit
+        }
+
+        void DrawScrollOptionsBox(Action closeAction)
+        {
+            SetText(16, 20, "Pathway-");
+            SetText(16, 29, "Scrolling");
+            SetText(16, 45, "Invert");
+            SetText(16, 54, "Scrolling");
+            SetText(16, 70, "Hide mouse");
+            SetText(16, 79, "while scr.");
+            SetText(16, 95, "Reset mouse");
+            SetText(16, 104, "after scr.");
+
+            SetButton(112, 21, interf.GetOption(Option.PathwayScrolling) ? 288u : 220u, Action.OptionsPathwayScrolling);
+            SetButton(112, 47, interf.GetOption(Option.InvertScrolling) ? 288u : 220u, Action.OptionsInvertScrolling);
+            SetButton(112, 73, interf.GetOption(Option.HideCursorWhileScrolling) ? 288u : 220u, Action.OptionsHideCursorWhileScrolling);
+            SetButton(112, 98, interf.GetOption(Option.ResetCursorAfterScrolling) ? 288u : 220u, Action.OptionsResetCursorAfterScrolling);
 
             SetButton(104, 137, 61u, Action.ShowOptions); // flip
             SetButton(120, 137, 60u, closeAction); // exit
         }
 
         void DrawOptionsBox(Action closeAction)
-		{
+        {
             SetText(16, 23, "Music");
             SetText(16, 39, "Sound");
             SetText(16, 48, "effects");
@@ -2653,10 +2672,10 @@ namespace Freeserf.UI
 
             SetButton(104, 137, 61u, Action.ShowExtendedOptions); // flip
             SetButton(120, 137, 60u, closeAction); // exit
-		}
+        }
 
         void DrawMineOutputBox()
-		{
+        {
             var building = TryToOpenBuildingPopup();
 
             if (building == null)
@@ -2719,7 +2738,7 @@ namespace Freeserf.UI
         }
 
         void DrawOrderedBuildingBox()
-		{
+        {
             var building = TryToOpenBuildingPopup();
 
             if (building == null)
@@ -2764,7 +2783,7 @@ namespace Freeserf.UI
         }
 
         void DrawDefendersBox()
-		{
+        {
             var player = interf.Player;
 
             if (player.SelectedObjectIndex == 0)
@@ -2868,7 +2887,7 @@ namespace Freeserf.UI
 
         // flag menu
         void DrawTransportInfoBox()
-		{
+        {
             if (interf.Player.SelectedObjectIndex == 0)
             {
                 interf.ClosePopup();
@@ -3017,7 +3036,7 @@ namespace Freeserf.UI
         }
 
         void DrawCastleSerfBox()
-		{
+        {
             var building = TryToOpenBuildingPopup();
 
             if (building == null)
@@ -3046,7 +3065,7 @@ namespace Freeserf.UI
         }
 
         void DrawResourceDirectionBox()
-		{
+        {
             var building = TryToOpenBuildingPopup();
 
             if (building == null)
@@ -3103,7 +3122,7 @@ namespace Freeserf.UI
                     break;
                 case Inventory.Mode.Stop:
                     SetButton(80, 25, 220, Action.ResourceModeIn);
-                    SetIcon(80, 41, 288);                    
+                    SetIcon(80, 41, 288);
                     SetButton(80, 57, 220, Action.ResourceModeOut);
                     break;
                 case Inventory.Mode.Out:
@@ -3137,7 +3156,7 @@ namespace Freeserf.UI
         }
 
         void DrawKnightSettingsBox()
-		{
+        {
             var player = interf.Player;
 
             // serf to knight rate setting
@@ -3197,7 +3216,7 @@ namespace Freeserf.UI
         }
 
         void DrawPlayerFacesBox()
-		{
+        {
             int numPlayers = interf.Game.PlayerCount;
             int width = (Width - 16) / 2;
             int height = (Height - 16) / 2;
@@ -3223,18 +3242,18 @@ namespace Freeserf.UI
         }
 
         void DrawDemolishBox()
-		{
+        {
             SetButton(120, 137, 60u, Action.CloseBox); // exit button
             SetButton(64, 54, 288u, Action.Demolish); // checkbox
 
-            SetText(8, 19,"    Demolish:");
+            SetText(8, 19, "    Demolish:");
             SetText(8, 39, "   Click here");
             SetText(8, 77, "   if you are");
             SetText(8, 95, "      sure");
         }
 
         void DrawSaveBox()
-		{
+        {
             SetText(32, 11, "Save  Game");
 
             SetButton(8, 137, 224u, Action.Save); // save button
@@ -3280,7 +3299,7 @@ namespace Freeserf.UI
         }
 
         void ActivateTransportItem(int index)
-		{
+        {
             var player = interf.Player;
             int i;
 
@@ -3304,10 +3323,10 @@ namespace Freeserf.UI
 
                 CurrentInventoryPriorityItem = (uint)i + 1;
             }
-		}
+        }
 
         void MoveTransportItem(bool up, bool toEnd)
-		{
+        {
             var player = interf.Player;
             byte[] priorities;
             int current;
@@ -3366,7 +3385,7 @@ namespace Freeserf.UI
         }
 
         void HandleAction(Action action, int x, int y, object tag = null)
-		{
+        {
             SetRedraw();
 
             var player = interf.Player;
@@ -3429,7 +3448,7 @@ namespace Freeserf.UI
                     break;
                 case Action.ShowPlanksAndSteelDistribution:
                     SetBox(Type.PlanksAndSteelDistribution);
-                    break;                
+                    break;
                 case Action.ShowCoalAndWheatDistribution:
                     SetBox(Type.CoalAndWheatDistribution);
                     break;
@@ -3449,7 +3468,11 @@ namespace Freeserf.UI
                     SetBox(Type.Options);
                     break;
                 case Action.ShowExtendedOptions:
-                    SetBox(Type.ExtendedOptions);
+                    SetBox(Box == Type.GameInitOptions ? Type.ExtendedGameInitOptions : Type.ExtendedOptions);
+                    break;
+                case Action.ShowScrollOptions:
+                    // Scroll options are not part of the game init box options so go back to normal options then.
+                    SetBox(Box == Type.ExtendedGameInitOptions ? Type.GameInitOptions : Type.ScrollOptions);
                     break;
                 case Action.ShowQuit:
                     SetBox(Type.QuitConfirm);
@@ -4093,44 +4116,52 @@ namespace Freeserf.UI
                     }
                     break;
                 case Action.OptionsMessageCount:
-                    if (interf.GetConfig(3))
+                    if (interf.GetOption(Option.MessagesAll))
                     {
-                        interf.SwitchConfig(3);
-                        interf.SetConfig(4);
+                        interf.ResetOption(Option.MessagesAll);
+                        interf.SetOption(Option.MessagesMost);
                     }
-                    else if (interf.GetConfig(4))
+                    else if (interf.GetOption(Option.MessagesMost))
                     {
-                        interf.SwitchConfig(4);
-                        interf.SetConfig(5);
+                        interf.ResetOption(Option.MessagesMost);
+                        interf.SetOption(Option.MessagesFew);
                     }
-                    else if (interf.GetConfig(5))
+                    else if (interf.GetOption(Option.MessagesFew))
                     {
-                        interf.SwitchConfig(5);
+                        interf.ResetOption(Option.MessagesFew);
                     }
                     else
                     {
-                        interf.SetConfig(3);
-                        interf.SetConfig(4);
-                        interf.SetConfig(5);
+                        interf.SetOption(Option.MessagesAll);
+                        interf.SetOption(Option.MessagesMost);
+                        interf.SetOption(Option.MessagesFew);
                     }
-                    UserConfig.Game.Options = interf.GetConfig();
+                    UserConfig.Game.Options = (int)interf.Options;
                     SetRedraw();
                     break;
                 case Action.OptionsPathwayScrolling:
-                    interf.SwitchConfig(6);
-                    UserConfig.Game.Options = interf.GetConfig();
+                    interf.SwitchOption(Option.PathwayScrolling);
+                    UserConfig.Game.Options = (int)interf.Options;
                     break;
                 case Action.OptionsFastMapclick:
-                    interf.SwitchConfig(7);
-                    UserConfig.Game.Options = interf.GetConfig();
+                    interf.SwitchOption(Option.FastMapClick);
+                    UserConfig.Game.Options = (int)interf.Options;
                     break;
                 case Action.OptionsFastBuilding:
-                    interf.SwitchConfig(2);
-                    UserConfig.Game.Options = interf.GetConfig();
+                    interf.SwitchOption(Option.FastBuilding);
+                    UserConfig.Game.Options = (int)interf.Options;
                     break;
                 case Action.OptionsInvertScrolling:
-                    interf.SwitchConfig(1);
-                    UserConfig.Game.Options = interf.GetConfig();
+                    interf.SwitchOption(Option.InvertScrolling);
+                    UserConfig.Game.Options = (int)interf.Options;
+                    break;
+                case Action.OptionsHideCursorWhileScrolling:
+                    interf.SwitchOption(Option.HideCursorWhileScrolling);
+                    UserConfig.Game.Options = (int)interf.Options;
+                    break;
+                case Action.OptionsResetCursorAfterScrolling:
+                    interf.SwitchOption(Option.ResetCursorAfterScrolling);
+                    UserConfig.Game.Options = (int)interf.Options;
                     break;
                 case Action.QuitCancel:
                     if (Box == Type.QuitConfirm || Box == Type.NoSaveQuitConfirm || Box == Type.DiskMsg)
@@ -4187,10 +4218,10 @@ namespace Freeserf.UI
                     Log.Warn.Write(ErrorSystemType.UI, "unhandled action " + action.ToString());
                     break;
             }
-		}
+        }
 
         void HandleBuildingClick(object tag, int x, int y)
-		{
+        {
             if (interf.AccessRights != Viewer.Access.Player)
             {
                 PlaySound(Freeserf.Audio.Audio.TypeSfx.NotAccepted);
@@ -4205,7 +4236,7 @@ namespace Freeserf.UI
             {
                 HandleAction(Action.BuildFlag, x, y);
             }
-		}
+        }
 
         protected override void InternalHide()
         {
@@ -4327,6 +4358,9 @@ namespace Freeserf.UI
                     break;
                 case Type.ExtendedOptions:
                     DrawExtendedOptionsBox(Action.ShowSettlerMenu);
+                    break;
+                case Type.ScrollOptions:
+                    DrawScrollOptionsBox(Action.ShowSettlerMenu);
                     break;
                 case Type.GameInitOptions:
                     DrawOptionsBox(Action.CloseBox);
@@ -4453,7 +4487,7 @@ namespace Freeserf.UI
             }
 
             base.HandleClickLeft(x, y);
-                
+
             return true; // always return true to avoid passing click events through
         }
 

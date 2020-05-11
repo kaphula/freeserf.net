@@ -19,22 +19,21 @@
  * along with freeserf.net. If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using Silk.NET.OpenGL;
 using Freeserf.Audio;
 using Freeserf.Data;
 using Freeserf.Event;
 using Freeserf.Render;
 using Freeserf.Renderer;
+using Silk.NET.OpenGL;
+using System;
+using System.Collections.Generic;
 
 namespace Freeserf
 {
     using EventArgs = Event.EventArgs;
     using EventHandler = Event.EventHandler;
     using EventType = Event.Type;
-    using Data = Data.Data;
-    using Texture = Freeserf.Renderer.Texture;
+    using Texture = Renderer.Texture;
 
     public delegate bool FullscreenRequestHandler(bool fullscreen);
 
@@ -42,7 +41,7 @@ namespace Freeserf
     {
         // these two lines are fore the background map at start
         int mapScrollTicks = 0;
-        Random mapScrollRandom = new Random();
+        readonly Random mapScrollRandom = new Random();
 
         bool disposed = false;
         Context context;
@@ -73,11 +72,12 @@ namespace Freeserf
         public event EventHandler Drag;
         public event EventHandler KeyPress;
         public event EventHandler SystemKeyPress;
+        public event EventHandler StopDrag;
         public FullscreenRequestHandler FullscreenRequestHandler { get; set; }
 
         public GameView(DataSource dataSource, Size virtualScreenSize,
-            DeviceType deviceType = DeviceType.Desktop, 
-            SizingPolicy sizingPolicy = SizingPolicy.FitRatio, 
+            DeviceType deviceType = DeviceType.Desktop,
+            SizingPolicy sizingPolicy = SizingPolicy.FitRatio,
             OrientationPolicy orientationPolicy = OrientationPolicy.Support180DegreeRotation)
         {
             VirtualScreen = new Rect(0, 0, Math.Min(virtualScreenSize.Width, Global.MAX_VIRTUAL_SCREEN_WIDTH), Math.Min(virtualScreenSize.Height, Global.MAX_VIRTUAL_SCREEN_HEIGHT));
@@ -163,7 +163,7 @@ namespace Freeserf
                         };
                     }
                     else if (layer == Layer.GuiFont) // UI Font needs different scaling
-                    {                      
+                    {
                         renderLayer.PositionTransformation = (Position position) =>
                         {
                             float factorX = (float)VirtualScreen.Size.Width / 640.0f;
@@ -354,7 +354,7 @@ namespace Freeserf
                 case DeviceType.MobilePortrait:
                     Resize(width, height, Orientation.PortraitTopDown);
                     break;
-            }            
+            }
         }
 
         public void Resize(int width, int height, Orientation orientation)
@@ -543,6 +543,7 @@ namespace Freeserf
         bool RunHandler(EventHandler handler, EventArgs args)
         {
             bool? h = handler?.Invoke(this, args);
+
             if (h.HasValue)
                 args.Done = h.Value;
 
@@ -593,6 +594,11 @@ namespace Freeserf
                 position = new Position();
 
             return RunHandler(Drag, new EventArgs(EventType.Drag, position.X, position.Y, delta.Width, delta.Height, button));
+        }
+
+        public bool NotifyStopDrag()
+        {
+            return RunHandler(StopDrag, new EventArgs(EventType.StopDrag, 0, 0, 0, 0));
         }
 
         public bool NotifyKeyPressed(char key, byte modifier)

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Drawing;
-using System.Linq;
-using Silk.NET.Input;
+﻿using Silk.NET.Input;
 using Silk.NET.Input.Common;
 using Silk.NET.Windowing.Common;
+using System;
+using System.Drawing;
+using System.Linq;
 
 namespace Silk.NET.Window
 {
@@ -29,7 +29,7 @@ namespace Silk.NET.Window
         );
 
         readonly IWindow window = null;
-        public IMouse mouse = null;
+        IMouse mouse = null;
         bool cursorVisible = true;
 
         private static WindowOptions CreateOptions(string title, Point position, Size size)
@@ -62,7 +62,7 @@ namespace Silk.NET.Window
         }
 
         public Window(WindowOptions options)
-        {           
+        {
             window = Windowing.Window.Create(options);
             InitEvents();
         }
@@ -92,6 +92,15 @@ namespace Silk.NET.Window
                 }
             }
         }
+        public CursorMode CursorMode
+        {
+            get => mouse == null ? CursorMode.Disabled : mouse.Cursor.CursorMode;
+            set
+            {
+                if (mouse?.Cursor != null)
+                    mouse.Cursor.CursorMode = value;
+            }
+        }
 
         public bool CursorVisible
         {
@@ -119,6 +128,18 @@ namespace Silk.NET.Window
                 }
             }
         }
+
+        public PointF CursorPosition
+        {
+            get => mouse == null ? PointF.Empty : mouse.Position;
+            set
+            {
+                if (mouse != null)
+                    mouse.Position = value;
+            }
+        }
+
+        public bool IsMouseButtonPressed(MouseButton button) => mouse.IsButtonPressed(button);
 
         public Rectangle ClientRectangle => new Rectangle(Position, Size);
 
@@ -309,7 +330,7 @@ namespace Silk.NET.Window
             set
             {
                 doubleClickTime = value;
-                
+
                 if (mouse != null)
                     mouse.DoubleClickTime = value;
             }
