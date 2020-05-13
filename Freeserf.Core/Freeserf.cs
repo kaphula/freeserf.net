@@ -52,6 +52,7 @@ namespace Freeserf
             public int ScreenHeight = -1;
             public bool? Fullscreen = null;
             public bool ConsoleWindow = false;
+            public bool LogLevelSet = false;
         }
 
         public static InitInfo Init(string[] args)
@@ -59,19 +60,20 @@ namespace Freeserf
             var initInfo = new InitInfo();
             var commandLine = new CommandLine();
 
-            commandLine.AddOption('d', "Set Debug output level").AddParameter("NUM", (AutoParseableString s) =>
+            commandLine.AddOption('d', "Set debug output level").AddParameter("NUM", (AutoParseableString s) =>
             {
                 s.Retrieve(out int d);
 
-                if (d >= 0 && d < (int)Log.Level.Max)
+                if (d >= (int)Log.Level.Min && d < (int)Log.Level.Max)
                 {
                     Log.SetLevel((Log.Level)d);
+                    initInfo.LogLevelSet = true;
                 }
 
                 return true;
             });
 
-            commandLine.AddOption('f', "Run in Fullscreen mode", () => { initInfo.Fullscreen = true; });
+            commandLine.AddOption('f', "Run in fullscreen mode", () => { initInfo.Fullscreen = true; });
 
             commandLine.AddOption('g', "Use specified data directory").AddParameter("DATA-PATH", (AutoParseableString s) =>
             {

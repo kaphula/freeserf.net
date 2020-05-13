@@ -21,6 +21,7 @@
  */
 
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -32,13 +33,13 @@ namespace Freeserf
 
     public class ConfigFile
     {
-        Sections data = new Sections();
+        readonly Sections data = new Sections();
 
         public bool Load(string path)
         {
             if (!File.Exists(path))
             {
-                Log.Error.Write(ErrorSystemType.Config, $"Failed to open config file '{path}'.");
+                Log.Info.Write(ErrorSystemType.Config, $"Failed to open config file '{path}'.");
                 return false;
             }
 
@@ -186,19 +187,34 @@ namespace Freeserf
             return data[section][name].GetValue<T>();
         }
 
+        static string ValueToString<T>(T value)
+        {
+            if (value is string str)
+                return str;
+            else if (value is bool b)
+                return b ? "1" : "0";
+            else if (value is float f)
+                return f.ToString("0.0", CultureInfo.InvariantCulture);
+            else if (value is double d)
+                return d.ToString("0.0", CultureInfo.InvariantCulture);
+            else
+                return value.ToString();
+        }
+
         public void SetValue<T>(string section, string name, T value)
         {
             if (!data.ContainsKey(section))
             {
-                var values = new Values();
-
-                values[name] = value.ToString();
+                var values = new Values
+                {
+                    [name] = ValueToString(value)
+                };
 
                 data.Add(section, values);
             }
             else
             {
-                data[section][name] = value.ToString();
+                data[section][name] = ValueToString(value);
             }
         }
     }
