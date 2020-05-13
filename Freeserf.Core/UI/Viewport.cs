@@ -423,10 +423,14 @@ namespace Freeserf.UI
                         interf.BuildRoadBegin();
                     else if (interf.Game.CanBuildAnything(mapPosition, interf.Player))
                     {
-                        if (!interf.Game.CanBuildSmall(mapPosition)) // only flags are possible
-                            interf.BuildFlag();
+                        if (interf.Game.CanBuildMine(mapPosition))
+                            interf.OpenPopup(PopupBox.Type.MineBuilding);
+                        else if (interf.Game.CanBuildSmall(mapPosition))
+                            interf.OpenPopup(PopupBox.Type.BasicBld);
+                        else if (interf.Game.CanBuildLarge(mapPosition))
+                            interf.OpenPopup(PopupBox.Type.BasicBldFlip);
                         else
-                            interf.OpenPopup(interf.Game.CanBuildLarge(mapPosition) ? PopupBox.Type.BasicBldFlip : PopupBox.Type.BasicBld);
+                            interf.BuildFlag();
                     }
                 }
 

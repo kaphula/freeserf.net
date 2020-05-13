@@ -672,7 +672,7 @@ namespace Freeserf
             if (!Map.HasFlag(flagPosition) && !CanBuildFlag(flagPosition, player))
                 return false;
 
-            return CanBuildSmall(position);
+            return CanBuildSmall(position) || CanBuildMine(position);
         }
 
         /// <summary>
